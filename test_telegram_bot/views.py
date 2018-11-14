@@ -18,6 +18,7 @@ def index(request):
 
     while 1:
         time.sleep(1)
+    return HttpResponseRedirect("/")
 
 
 def on_chat_message(msg):
