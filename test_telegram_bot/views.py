@@ -17,7 +17,7 @@ def index(request):
     print('Listening ...')
 
     while 1:
-        time.sleep(60)
+        time.sleep(1)
 
 
 def on_chat_message(msg):
