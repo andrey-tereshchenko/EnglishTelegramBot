@@ -15,10 +15,8 @@ def index(request):
     MessageLoop(bot, {'chat': on_chat_message,
                       'callback_query': on_callback_query}).run_as_thread()
     print('Listening ...')
-
     while 1:
-        time.sleep(1)
-    return HttpResponseRedirect("/")
+        time.sleep(10)
 
 
 def on_chat_message(msg):
@@ -62,35 +60,27 @@ def on_callback_query(msg):
     print('Callback Query:', query_id, from_id, query_data)
     msg_idf = telepot.message_identifier(msg['message'])
 
-    if query_data == 'button1':
-        question = generete_question_by_type(Question.TYPE_DO)
-        users_question = UsersQuestion(used_id=from_id, question=question)
-        users_question.save()
-        TelegramBot.editMessageText(msg_idf, f'Переведите предложение : {question.question_text}')
-
-    if query_data == 'button2':
-        question = generete_question_by_type(Question.TYPE_AM)
-        users_question = UsersQuestion(used_id=from_id, question=question)
-        users_question.save()
-        TelegramBot.editMessageText(msg_idf, f'Переведите предложение : {question.question_text}')
-
-    if query_data == 'button3':
-        question = generete_question_by_type(Question.TYPE_IN)
-        users_question = UsersQuestion(used_id=from_id, question=question)
-        users_question.save()
-        TelegramBot.editMessageText(msg_idf, f'Переведите предложение : {question.question_text}')
-
-    if query_data == 'more':
-        user_question = UsersQuestion.objects.filter(used_id=from_id)
-        lenght = len(user_question)
-        type = user_question[lenght - 1].question.type_question
-        question = generete_question_by_type(type)
-        users_question = UsersQuestion(used_id=from_id, question=question)
-        users_question.save()
-        TelegramBot.editMessageText(msg_idf, f'Переведите предложение : {question.question_text}')
-
     if query_data == 'back':
         TelegramBot.editMessageText(msg_idf, text="Выберите категорию", reply_markup=keyboard)
+    else:
+        if query_data == 'button1':
+            question = generete_question_by_type(Question.TYPE_DO)
+
+        if query_data == 'button2':
+            question = generete_question_by_type(Question.TYPE_AM)
+
+        if query_data == 'button3':
+            question = generete_question_by_type(Question.TYPE_IN)
+
+        if query_data == 'more':
+            user_question = UsersQuestion.objects.filter(used_id=from_id)
+            lenght = len(user_question)
+            type = user_question[lenght - 1].question.type_question
+            question = generete_question_by_type(type)
+
+        users_question = UsersQuestion(used_id=from_id, question=question)
+        users_question.save()
+        TelegramBot.editMessageText(msg_idf, f'Переведите предложение : {question.question_text}')
 
 
 def generete_question_by_type(type):
