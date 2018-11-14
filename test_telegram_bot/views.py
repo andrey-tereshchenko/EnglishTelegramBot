@@ -17,10 +17,12 @@ def index(request):
     print('Listening ...')
 
     while 1:
-        time.sleep(10)
+        time.sleep(60)
+
 
 def on_chat_message(msg):
     content_type, chat_type, chat_id = telepot.glance(msg)
+    commands = ['/start', '/send-image', '/send-audio']
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text='Do did does', callback_data='button1'),
@@ -37,10 +39,16 @@ def on_chat_message(msg):
     if lenght > 0:
         if msg["text"] == user_question[lenght - 1].question.answer_text:
             TelegramBot.sendMessage(chat_id, text='Ответ правильный +1 points', reply_markup=keyboard2)
-        elif msg["text"] != '/start':
-            TelegramBot.sendMessage(chat_id, text=f'Ответ не правильный! Правильный ответ : {user_question[lenght - 1].question.answer_text} ', reply_markup=keyboard2)
-    if msg["text"] == '/start':
+        elif msg["text"] not in commands:
+            TelegramBot.sendMessage(chat_id,
+                                    text=f'Ответ не правильный! Правильный ответ : {user_question[lenght - 1].question.answer_text} ',
+                                    reply_markup=keyboard2)
+    if msg["text"] == commands[0]:
         TelegramBot.sendMessage(chat_id, 'Выберите категорию', reply_markup=keyboard)
+    if msg["text"] == commands[1]:
+        TelegramBot.sendPhoto(chat_id=chat_id, photo='https://telegram.org/img/t_logo.png')
+    if msg["text"] == commands[2]:
+        TelegramBot.sendAudio(chat_id=chat_id, audio=open('static/audio/1.mp3', 'rb'))
 
 
 def on_callback_query(msg):
