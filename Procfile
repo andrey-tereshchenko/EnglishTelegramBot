@@ -1,0 +1,1 @@
+web: gunicorn my_english_telegram_bot.wsgi --log-file -
