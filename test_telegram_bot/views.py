@@ -9,6 +9,22 @@ from test_telegram_bot.models import Question, UsersQuestion
 TOKEN = '700213562:AAFa9RojjehuOw_lTOUjyqls_Kx3vosPSdU'
 TelegramBot = telepot.Bot(TOKEN)
 
+keyboard = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text='Do did does', callback_data='button1'),
+     InlineKeyboardButton(text='am is are', callback_data='button2'),
+     InlineKeyboardButton(text='in at on', callback_data='button3')],
+])
+
+keyboard2 = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text='Еще вопрос', callback_data='more'),
+     InlineKeyboardButton(text='К выбору категорий', callback_data='back'),
+     InlineKeyboardButton(text='Граматика', callback_data='grammar')],
+])
+keyboard3 = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text='Еще вопрос', callback_data='more'),
+     InlineKeyboardButton(text='К выбору категорий', callback_data='back')],
+])
+
 
 def index(request):
     bot = telepot.Bot(TOKEN)
@@ -22,22 +38,11 @@ def index(request):
 def on_chat_message(msg):
     content_type, chat_type, chat_id = telepot.glance(msg)
     commands = ['/start', '/send-image', '/send-audio']
-
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text='Do did does', callback_data='button1'),
-         InlineKeyboardButton(text='am is are', callback_data='button2'),
-         InlineKeyboardButton(text='in at on', callback_data='button3')],
-    ])
-
-    keyboard2 = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text='Еще вопрос', callback_data='more'),
-         InlineKeyboardButton(text='К выбору категорий', callback_data='back')],
-    ])
     user_question = UsersQuestion.objects.filter(used_id=chat_id)
     lenght = len(user_question)
     if lenght > 0:
         if msg["text"] == user_question[lenght - 1].question.answer_text:
-            TelegramBot.sendMessage(chat_id, text='Ответ правильный +1 points', reply_markup=keyboard2)
+            TelegramBot.sendMessage(chat_id, text='Ответ правильный +1 points', reply_markup=keyboard3)
         elif msg["text"] not in commands:
             TelegramBot.sendMessage(chat_id,
                                     text=f'Ответ не правильный! Правильный ответ : {user_question[lenght - 1].question.answer_text} ',
@@ -51,17 +56,24 @@ def on_chat_message(msg):
 
 
 def on_callback_query(msg):
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text='Do did does', callback_data='button1'),
-         InlineKeyboardButton(text='Am is are', callback_data='button2'),
-         InlineKeyboardButton(text='In at on', callback_data='button3')],
-    ])
     query_id, from_id, query_data = telepot.glance(msg, flavor='callback_query')
     print('Callback Query:', query_id, from_id, query_data)
     msg_idf = telepot.message_identifier(msg['message'])
 
     if query_data == 'back':
         TelegramBot.editMessageText(msg_idf, text="Выберите категорию", reply_markup=keyboard)
+    elif query_data == 'grammar':
+        photos = ['https://englsecrets.ru/wp-content/uploads/2013/05/formy-glagola-to-be.jpg',
+                  'http://englishtexts.ru/wp-content/VerbToBe.png',
+                  'https://lingvoelf.ru/images/english_grammar/at_on_in.JPG']
+        user_question = UsersQuestion.objects.filter(used_id=from_id)
+        lenght = len(user_question)
+        type = user_question[lenght - 1].question.type_question
+        TelegramBot.deleteMessage(msg_idf)
+        TelegramBot.sendPhoto(chat_id=from_id, photo=photos[type])
+        TelegramBot.sendMessage(chat_id=from_id,
+                                text='Продолжаем ?',
+                                reply_markup=keyboard3)
     else:
         if query_data == 'button1':
             question = generete_question_by_type(Question.TYPE_DO)
