@@ -15,8 +15,16 @@ class Question(models.Model):
         choices=TYPES, null=True)
     question_text = models.CharField(max_length=200)
     answer_text = models.CharField(max_length=200)
+    cost = models.PositiveSmallIntegerField()
 
 
 class UsersQuestion(models.Model):
-    used_id = models.IntegerField()
+    user_id = models.PositiveIntegerField()
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    answer = models.CharField(max_length=200)
+
+
+class UserInformation(models.Model):
+    user_id = models.PositiveIntegerField()
+    date_registered = models.DateField()
+    score = models.PositiveIntegerField()
