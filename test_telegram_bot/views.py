@@ -8,9 +8,6 @@ from telepot.loop import MessageLoop
 
 from test_telegram_bot.models import Question, UsersQuestion, UserInformation
 
-BOLD = '\033[1m'
-UNDERLINE = '\033[4m'
-END = '\033[0m'
 TOKEN = '700213562:AAFa9RojjehuOw_lTOUjyqls_Kx3vosPSdU'
 TelegramBot = telepot.Bot(TOKEN)
 
@@ -38,6 +35,7 @@ def index(request):
     print('Listening ...')
     while 1:
         time.sleep(10)
+        return HttpResponse("bot working")
 
 
 def on_chat_message(msg):
