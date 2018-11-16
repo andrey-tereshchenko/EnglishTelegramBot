@@ -2,6 +2,7 @@ import datetime
 import random
 import time
 import telepot
+import pymorphy2
 from django.http import HttpResponse
 from telepot.namedtuple import InlineKeyboardMarkup, InlineKeyboardButton
 from telepot.loop import MessageLoop
@@ -48,9 +49,11 @@ def on_chat_message(msg):
         if msg["text"] == user_question[lenght - 1].question.answer_text:
             cost_question = user_question[lenght - 1].question.cost
             score = user_information.score + cost_question
+            word_name_1 = get_name_for_number(cost_question)
+            word_name_2 = get_name_for_number(score)
             date = user_information.date_registered
             TelegramBot.sendMessage(chat_id,
-                                    text=f'Правильно! +{cost_question} балла к счету. С {date} Вы заработали {score} балла',
+                                    text=f'Правильно! +{cost_question} {word_name_1} к счету. С {date} Вы заработали {score} {word_name_2} ',
                                     reply_markup=keyboard3)
             user_question[lenght - 1].answer = msg["text"]
             user_question[lenght - 1].save()
@@ -108,12 +111,26 @@ def on_callback_query(msg):
 
         users_question = UsersQuestion(user_id=from_id, question=question)
         cost_question = question.cost
+        word_name = get_name_for_number(cost_question)
         users_question.save()
         TelegramBot.editMessageText(msg_idf,
-                                    f'Переведите предложение : {question.question_text} (+{cost_question} points)'
+                                    f'Переведите предложение : {question.question_text} (+{cost_question} {word_name})'
                                     )
 
 
 def generete_question_by_type(type):
     questions = Question.objects.filter(type_question=type)
     return random.choice(questions)
+
+
+def get_name_for_number(number):
+    morph = pymorphy2.MorphAnalyzer()
+    word = morph.parse('балл')[0]
+    v1, v2, v3 = word.inflect({'sing', 'nomn'}), word.inflect({'gent'}), word.inflect({'plur', 'gent'})
+    if number % 10 == 1 and number % 100 != 11:
+        search_word = v1.word
+    elif number % 10 in (2, 3, 4) and number % 100 not in (12, 13, 14):
+        search_word = v2.word
+    else:
+        search_word = v3.word
+    return search_word
