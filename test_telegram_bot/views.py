@@ -8,7 +8,7 @@ from telepot.loop import MessageLoop
 
 from test_telegram_bot.models import Question, UsersQuestion, UserInformation
 
-TOKEN = '700213562:AAFa9RojjehuOw_lTOUjyqls_Kx3vosPSdU'
+TOKEN = '566642144:AAFqwMUm9iXt4bRIdUmEDYA_c6eUckBhQxY'
 TelegramBot = telepot.Bot(TOKEN)
 
 keyboard = InlineKeyboardMarkup(inline_keyboard=[
